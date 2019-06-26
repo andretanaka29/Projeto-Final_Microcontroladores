@@ -2,7 +2,7 @@
  * three_wire.c
  *
  * Created: 16/06/2019 14:13:10
- *  Author: mikae
+ *  Author: Mikael Ferraz Aldebrand
  */
 #define F_CPU 16000000UL
 
@@ -16,98 +16,128 @@
 #include "avr_timer.h"
 #include "three_wire.h"
 
-volatile uint8_t n = 0;
+#ifdef MSB
+	volatile uint8_t rise = 8, fall=8;
+#endif
+
+#ifdef LSB
+	volatile uint8_t rise = 0, fall=0;
+#endif
+	
 
 void three_wire_init(void)
 {
-	TIMER_0->TCCRA = SET(COM0A0) | SET(WGM01); // Toggle OC0A on compare match, TOP on OCRA
 	TIMER_0->TCCRB = SET(CS01); // Presc. 8
-	TIMER_0->OCRA = 200; // Freq. 10kHz
-	
-	TIMER_IRQS->TC0.BITS.OCIEA = 1; // Interruption on compare match enable
-	
 	THREE_WIRE_CONTROL->DDR |= SET(SCLK) | SET(CE);
 }
 
 void send_data(uint8_t data)
 {
-	uint8_t i;
-	
-	SET_BIT(THREE_WIRE_CONTROL->DDR,DATA);
-	SET_BIT(THREE_WIRE_CONTROL->PORT,CE);
-	
 	#ifdef MSB
-		i = 7;
+		rise = 8;
 		do 
 		{
-			if(TST_BIT(data,i))
+			if(TST_BIT(data,rise))
 				SET_BIT(THREE_WIRE_CONTROL->PORT,DATA);
 			else
 				CLR_BIT(THREE_WIRE_CONTROL->PORT,DATA);
-			i++;
-		} while (i);
+		}while(rise);
 	#endif
 	
 	#ifdef LSB
-		i = 0;
-		while(i < 8)
+		rise = 0;
+		do
 		{
-			if(TST_BIT(data,i))
+			if(TST_BIT(data,rise))
 				SET_BIT(THREE_WIRE_CONTROL->PORT,DATA);
 			else
 				CLR_BIT(THREE_WIRE_CONTROL->PORT,DATA);
-			i++;
-		}
+		}while(rise < 8);
 	#endif
-	
-	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset enable
 }
 
 uint8_t get_data(uint8_t adress)
 {
-	uint8_t i, data = {0};
+	uint8_t data = {0};
+	
+	CLR_BIT(THREE_WIRE_CONTROL->DDR,DATA); // The data pin is set to receive
+	SET_BIT(THREE_WIRE_CONTROL->PORT,CE);
+	
+	TIMER_IRQS->TC0.BITS.TOIE=1; // Overflow interruption enable
 	
 	send_data(adress);
-	CLR_BIT(THREE_WIRE_CONTROL->DDR,DATA); // The data pin is set to receive
-	SET_BIT(THREE_WIRE_CONTROL->PORT,CE); 
-	SET_BIT(THREE_WIRE_CONTROL->PORT,DATA); // Reset disable, Data pin in pull-up
 	
 	#ifdef MSB
-		i=7;
+		fall = 8;
 		do 
 		{
 			if(TST_BIT(THREE_WIRE_CONTROL->PIN, DATA))
-				SET_BIT(data,i);
+				SET_BIT(data,fall);
 			else
-				CLR_BIT(data,i);
-			i--;
-		} while (i);
+				CLR_BIT(data,fall);
+		}while(fall);
 	#endif
 	
 	#ifdef LSB
-		i=0;
-		while(i<8)
+		fall = 0;
+		do
 		{
 			if(TST_BIT(THREE_WIRE_CONTROL->PIN, DATA))
-				SET_BIT(data,i);
+				SET_BIT(data,fall);
 			else
-				CLR_BIT(data,i);
-			i--;
-		}
+				CLR_BIT(data,fall);
+		} while(fall < 8);
 	#endif
 	
-	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset enable
+	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Disable
+	
+	TIMER_IRQS->TC0.BITS.TOIE=0; // Overflow interruption disable
 	
 	return data;
 }
 
 void write_data(uint8_t adress, uint8_t data)
 {
+	SET_BIT(THREE_WIRE_CONTROL->DDR,DATA);
+	SET_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Disable
+	
+	TIMER_IRQS->TC0.BITS.TOIE=1; // Overflow interruption enable
+	
 	send_data(adress);
 	send_data(data);
+	
+	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset enable
+	
+	TIMER_IRQS->TC0.BITS.TOIE=0; // Overflow interruption disable
 }
 
-ISR(TIMER0_COMPA_vect)
+ISR(TIMER0_OVF_vect)
 {
-	
+	CPL_BIT(THREE_WIRE_CONTROL->PORT,SCLK);
+	if(!TST_BIT(THREE_WIRE_CONTROL->PORT,SCLK))
+	{
+		#ifdef MSB
+			rise--;
+			if(!rise)
+				rise = 8;
+		#endif
+		
+		#ifdef LSB
+			rise++;
+			rise = rise & 0xFF;
+		#endif
+	}
+	else
+	{
+		#ifdef MSB
+			fall--;
+		if(!fall)
+			fall = 8;
+		#endif
+		
+		#ifdef LSB
+			fall++;
+			fall = fall & 0xFF;
+		#endif
+	}
 }
