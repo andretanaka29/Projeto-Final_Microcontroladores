@@ -4,12 +4,10 @@
  * Created: 16/06/2019 14:13:10
  *  Author: Mikael Ferraz Aldebrand
  */
-#define F_CPU 16000000UL
 
 #include <avr/io.h>
 #include <stdio.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
 
 #include "bits.h"
 #include "avr_gpio.h"
@@ -68,14 +66,14 @@ uint8_t get_data(uint8_t adress)
 	send_data(adress);
 	
 	#ifdef MSB
-		fall = 8;
+		fall = 0;
 		do 
 		{
 			if(TST_BIT(THREE_WIRE_CONTROL->PIN, DATA))
 				SET_BIT(data,fall);
 			else
 				CLR_BIT(data,fall);
-		}while(fall);
+		}while(fall < 8);
 	#endif
 	
 	#ifdef LSB
@@ -86,7 +84,7 @@ uint8_t get_data(uint8_t adress)
 				SET_BIT(data,fall);
 			else
 				CLR_BIT(data,fall);
-		} while(fall < 8);
+		} while(fall < 7);
 	#endif
 	
 	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Disable
@@ -131,8 +129,8 @@ ISR(TIMER0_OVF_vect)
 	{
 		#ifdef MSB
 			fall--;
-		if(!fall)
-			fall = 8;
+			if(!fall)
+				fall = 7;
 		#endif
 		
 		#ifdef LSB

@@ -24,11 +24,10 @@ int main(void)
 	three_wire_init();
 	
 	sei();
-	
+
     while (1) 
     {
-		send_data(0x51);
-		//fprintf(debug, "minutos: %d \r", get_minutes());
+		fprintf(debug, "day: %0X\r", get_days());
 		
 		_delay_ms(500);
     }
