@@ -57,13 +57,16 @@ void send_data(uint8_t data)
 uint8_t get_data(uint8_t adress)
 {
 	uint8_t data = {0};
-	
-	CLR_BIT(THREE_WIRE_CONTROL->DDR,DATA); // The data pin is set to receive
-	SET_BIT(THREE_WIRE_CONTROL->PORT,CE);
+		
+	SET_BIT(THREE_WIRE_CONTROL->DDR,DATA);
+	SET_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Disable
 	
 	TIMER_IRQS->TC0.BITS.TOIE=1; // Overflow interruption enable
 	
 	send_data(adress);
+	
+	CLR_BIT(THREE_WIRE_CONTROL->PORT,DATA); // Puts to zero the pin Data
+	CLR_BIT(THREE_WIRE_CONTROL->DDR,DATA); // The data pin is set to receive
 	
 	#ifdef MSB
 		fall = 0;
@@ -87,7 +90,7 @@ uint8_t get_data(uint8_t adress)
 		} while(fall < 7);
 	#endif
 	
-	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Disable
+	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Enable
 	
 	TIMER_IRQS->TC0.BITS.TOIE=0; // Overflow interruption disable
 	

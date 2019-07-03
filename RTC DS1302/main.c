@@ -15,6 +15,10 @@
 #include "avr_usart.h"
 #include "three_wire.h"
 
+#include "bits.h"
+#include "avr_gpio.h"
+#include "avr_timer.h"
+
 int main(void)
 {
 	FILE *debug = get_usart_stream();
@@ -24,10 +28,18 @@ int main(void)
 	three_wire_init();
 	
 	sei();
-
+	uint8_t h, m, s;
+	write_24hours(0x08);
+	write_minutes(0x33);
     while (1) 
     {
-		fprintf(debug, "day: %0X\r", get_days());
+		h = get_24hours();
+		_delay_ms(100);
+		m = get_minutes();
+		_delay_ms(100);
+		s = get_seconds();
+		_delay_ms(100);
+		fprintf(debug, "hours: %0X, minutes: %0X, seconds: %0X\r", h, m, s);
 		
 		_delay_ms(500);
     }
