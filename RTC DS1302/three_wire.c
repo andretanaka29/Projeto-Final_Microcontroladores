@@ -65,18 +65,17 @@ uint8_t get_data(uint8_t adress)
 	
 	send_data(adress);
 	
-	CLR_BIT(THREE_WIRE_CONTROL->PORT,DATA); // Puts to zero the pin Data
 	CLR_BIT(THREE_WIRE_CONTROL->DDR,DATA); // The data pin is set to receive
 	
 	#ifdef MSB
-		fall = 0;
+		fall = 8;
 		do 
 		{
 			if(TST_BIT(THREE_WIRE_CONTROL->PIN, DATA))
 				SET_BIT(data,fall);
 			else
 				CLR_BIT(data,fall);
-		}while(fall < 8);
+		}while(fall);
 	#endif
 	
 	#ifdef LSB
@@ -87,7 +86,7 @@ uint8_t get_data(uint8_t adress)
 				SET_BIT(data,fall);
 			else
 				CLR_BIT(data,fall);
-		} while(fall < 7);
+		} while(fall <= 7);
 	#endif
 	
 	CLR_BIT(THREE_WIRE_CONTROL->PORT,CE); // Reset Enable
