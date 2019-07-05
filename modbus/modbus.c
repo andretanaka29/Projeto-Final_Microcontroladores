@@ -37,7 +37,7 @@ uint16_t CRC16_2(uint8_t *buf, int len)
 
 void transmite_dado(uint16_t dado, uint8_t sensor)
 {
-	uint8_t i, pkg[8];
+	uint8_t i, pkg[8]; //rx_pkg[8];
 	uint16_t crc;
 
 	pkg[0] = 0x15;
@@ -54,34 +54,37 @@ void transmite_dado(uint16_t dado, uint8_t sensor)
 
 	for (i=0; i < 8; i++)
 		USART_tx(pkg[i]);
+		
+	for(i=0; i < 8; i++)
+		USART_rx();
+		//rx_pkg[i] = USART_rx();
 }
 
-uint8_t le_dado(uint8_t adress)
+uint16_t le_dado(uint16_t adress)
 {
-	uint8_t i, pkg[8], rx_pkg[16];
+	uint8_t i, pkg[8], rx_pkg[8];
 	uint16_t crc;
 	
 	pkg[0] = 0x15;
 	pkg[1] = 0x02;
-	pkg[2] = 0x00;
-	pkg[3] = adress;
+	pkg[2] = (adress >> 8);
+	pkg[3] = (adress & 0xFF);
 	pkg[4] = 0x00;
-	pkg[5] = adress;
+	pkg[5] = 0x01;
 
 	crc = CRC16_2(pkg,6);
 
 	pkg[6] = crc >> 8;
 	pkg[7] = crc & 0xff;
 
-	for (i=0; i < 8; i++)
+	for(i=0; i < 8; i++)
 		USART_tx(pkg[i]);
-
-	for (i=0; i < 14;i++)
-		rx_pkg[i] = USART_rx();
 		
-	return rx_pkg[5];
-}
+	for(i=0; i < 8; i++)
+		rx_pkg[i] = USART_rx();
 
+	return (rx_pkg[5]);
+}
 uint16_t converte_hex_dec(uint8_t valor)
 {
 	uint16_t a,b;

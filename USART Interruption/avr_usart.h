@@ -13,7 +13,7 @@
 #include <avr/io.h>
 #include <stdio.h>
 
-#define SIZE_BYTE 100
+#define SIZE_BYTE 26
 #define BYTE_MODBUS 10
 
 #ifndef _IO
@@ -48,7 +48,7 @@ void USART_Init(uint16_t bauds);
 FILE * get_usart_stream();
 
 void USART_tx(uint8_t data);
-uint8_t USART_rx();
+uint8_t USART_rx(void);
 
 
 #endif
