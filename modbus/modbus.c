@@ -4,17 +4,14 @@
  *  Created on: 26 de jun de 2019
  *      Author: Tanaka
  */
+#define  F_CPU 16000000UL
 
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
 
-#include "lib/avr_usart.h"
+#include "avr_usart.h"
 #include "modbus.h"
-
-
-volatile uint8_t rx_pkg[16];
-volatile uint8_t pkg[8] = {0x15, 0x01, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00};
 
 uint16_t CRC16_2(uint8_t *buf, int len)
 {
@@ -40,11 +37,12 @@ uint16_t CRC16_2(uint8_t *buf, int len)
 
 void transmite_dado(uint16_t dado, uint8_t sensor)
 {
-	uint8_t i;
+	uint8_t i, pkg[8]; //rx_pkg[8];
 	uint16_t crc;
 
+	pkg[0] = 0x15;
 	pkg[1] = 0x01;
-	pkg[2] = 0x00;
+	pkg[2] = 0;
 	pkg[3] = sensor;
 	pkg[4] = dado>>8;
 	pkg[5] = dado & 0xFF;
@@ -56,15 +54,21 @@ void transmite_dado(uint16_t dado, uint8_t sensor)
 
 	for (i=0; i < 8; i++)
 		USART_tx(pkg[i]);
+		
+	for(i=0; i < 8; i++)
+		USART_rx();
+		//rx_pkg[i] = USART_rx();
 }
 
-uint8_t le_dado(uint8_t endereco)
+uint16_t le_dado(uint16_t adress)
 {
-	uint8_t i, pkg[8] = {0};
+	uint8_t i, pkg[8], rx_pkg[8];
 	uint16_t crc;
+	
+	pkg[0] = 0x15;
 	pkg[1] = 0x02;
-	pkg[2] = 0x00;
-	pkg[3] = endereco;
+	pkg[2] = (adress >> 8);
+	pkg[3] = (adress & 0xFF);
 	pkg[4] = 0x00;
 	pkg[5] = 0x01;
 
@@ -73,16 +77,14 @@ uint8_t le_dado(uint8_t endereco)
 	pkg[6] = crc >> 8;
 	pkg[7] = crc & 0xff;
 
-	for (i=0; i < 8; i++)
+	for(i=0; i < 8; i++)
 		USART_tx(pkg[i]);
-
-	for (i=0; i < 14;i++)
+		
+	for(i=0; i < 8; i++)
 		rx_pkg[i] = USART_rx();
 
-
-	return rx_pkg;
+	return (rx_pkg[5]);
 }
-
 uint16_t converte_hex_dec(uint8_t valor)
 {
 	uint16_t a,b;

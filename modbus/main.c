@@ -4,21 +4,22 @@
  *  Created on: 26 de jun de 2019
  *      Author: Tanaka
  */
+#define  F_CPU 16000000UL
 
 #include <avr/io.h>
 #include <util/delay.h>
 #include <stdint.h>
 #include <avr/interrupt.h>
 
-#include "lib/avr_usart.h"
+#include "avr_usart.h"
 #include "modbus.h"
 #include "DS1302.h"
 #include "three_wire.h"
 
 
-int main(){
-	uint16_t data = 0;
-
+int main()
+{
+	uint16_t data;
 
 	/* Inicializa hardware da USART */
 	USART_Init(B9600);
@@ -26,25 +27,25 @@ int main(){
 	three_wire_init();
 
 	sei();
-	write_minutes(21);
-	//write_24hours(0x16);
+	//write_minutes(0x04);
+	//write_24hours(0x19);
 
 	while(1)
 	{
-	   //data = 55;
-		data = get_seconds();
-
-	   _delay_ms(250);
-	   transmite_dado(data, 0x05);
-	   data = get_minutes();
-	   _delay_ms(250);
-
-
-	   transmite_dado(data,0x06);
-	   _delay_ms(3000);
-
+		data = get_minutes();
+		data = converte_hex_dec(data);
+		transmite_dado(data, 0x05);
+		_delay_ms(250);
+		
+		data = get_24hours();
+		data = converte_hex_dec(data);
+		transmite_dado(data,0x06);
+		_delay_ms(250);
+	   
+		data = le_dado(0x01);
+		transmite_dado(data,0x07);
+		_delay_ms(3000);
 	}
-
 
 	return 0;
 }

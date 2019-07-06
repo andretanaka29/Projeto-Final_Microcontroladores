@@ -30,7 +30,7 @@ void transmite_dado(uint16_t dado, uint8_t sensor);
   *
   * @retval pacote de resposta.
   */
-uint8_t le_dado(uint8_t endereco);
+uint16_t le_dado(uint16_t adress);
 
 uint16_t converte_hex_dec(uint8_t valor);
 
