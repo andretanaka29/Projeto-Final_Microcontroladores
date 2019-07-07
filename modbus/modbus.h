@@ -8,6 +8,8 @@
 #ifndef MODBUS_H_
 #define MODBUS_H_
 
+#define SIZE_PKG 8
+
 /**
   * @brief  Calcula o CRC.
   * @param	pacote de dados dados e tamanho
@@ -22,7 +24,7 @@ uint16_t CRC16_2(uint8_t *buf, int len);
   *
   * @retval pacote de resposta.
   */
-void transmite_dado(uint16_t dado, uint8_t sensor);
+void transmite_dado(uint16_t dado, uint16_t sensor);
 
 /**
   * @brief  Lê dado.
@@ -33,5 +35,11 @@ void transmite_dado(uint16_t dado, uint8_t sensor);
 uint16_t le_dado(uint16_t adress);
 
 uint16_t converte_hex_dec(uint8_t valor);
+
+void send_pkg(uint8_t* tx_pkg, uint8_t size);
+
+void receive_pkg(uint8_t* rx_pkg, uint8_t size);
+
+uint8_t check_error(uint8_t* tx_pkg, uint8_t* rx_pkg);
 
 #endif /* MODBUS_H_ */

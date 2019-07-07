@@ -11,7 +11,7 @@
 #include "avr_usart.h"
 #include "bits.h"
 
-volatile uint8_t i=0, n=0, j=0, k=0, receive[SIZE_BYTE], buffer[SIZE_BYTE];
+volatile uint8_t i=0, n=0, j=0, k=0, receive[SIZE_BUFFER], buffer[SIZE_BUFFER];
 static int usart_putchar(char c, FILE *fp);
 
 /* Stream init for printf  */
@@ -43,14 +43,17 @@ void USART_tx(uint8_t data)
 {
 	buffer[i++] = data;
 	
-	if(i >= SIZE_BYTE)
+	if(i >= SIZE_BUFFER)
 		i=0;
 }
 
 uint8_t USART_rx(void)
 {	
-	if(k >= SIZE_BYTE)
-		k = 0;
+	if(k > j)
+		k = j;
+	
+	receive[k-1] = 0;	// Clean the buffer8
+	
 	return receive[k++];
 }
 
@@ -63,8 +66,9 @@ static int usart_putchar(char c, FILE *fp)
 
 ISR(USART_RX_vect)
 {
-	if(j >= SIZE_BYTE)
+	if(j >= SIZE_BUFFER)
 		j = 0;
+	
 	receive[j++] = USART_0->UDR_;
 }
 /*
@@ -78,6 +82,6 @@ ISR(USART_UDRE_vect)
 {
 	USART_0->UDR_ = buffer[n];
 	buffer[n++] = 0;
-	if(n >= SIZE_BYTE)
+	if(n >= SIZE_BUFFER)
 		n = 0;
 }

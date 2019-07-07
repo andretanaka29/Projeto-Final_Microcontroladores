@@ -35,15 +35,15 @@ uint16_t CRC16_2(uint8_t *buf, int len)
   return crc;
 }
 
-void transmite_dado(uint16_t dado, uint8_t sensor)
+void transmite_dado(uint16_t dado, uint16_t sensor)
 {
-	uint8_t i, pkg[8]; //rx_pkg[8];
+	uint8_t pkg[SIZE_PKG], rx_pkg[SIZE_PKG];
 	uint16_t crc;
 
 	pkg[0] = 0x15;
 	pkg[1] = 0x01;
-	pkg[2] = 0;
-	pkg[3] = sensor;
+	pkg[2] = sensor>>8;
+	pkg[3] = sensor & 0xFF;
 	pkg[4] = dado>>8;
 	pkg[5] = dado & 0xFF;
 
@@ -52,17 +52,16 @@ void transmite_dado(uint16_t dado, uint8_t sensor)
 	pkg[6] = crc >> 8;
 	pkg[7] = crc & 0xff;
 
-	for (i=0; i < 8; i++)
-		USART_tx(pkg[i]);
-		
-	for(i=0; i < 8; i++)
-		USART_rx();
-		//rx_pkg[i] = USART_rx();
+	do
+	{
+		send_pkg(pkg, SIZE_PKG);
+		receive_pkg(rx_pkg, SIZE_PKG);
+	} while(!check_error(pkg,rx_pkg));
 }
 
 uint16_t le_dado(uint16_t adress)
 {
-	uint8_t i, pkg[8], rx_pkg[8];
+	uint8_t pkg[SIZE_PKG], rx_pkg[SIZE_PKG];
 	uint16_t crc;
 	
 	pkg[0] = 0x15;
@@ -76,15 +75,48 @@ uint16_t le_dado(uint16_t adress)
 
 	pkg[6] = crc >> 8;
 	pkg[7] = crc & 0xff;
+	
+	do 
+	{
+		send_pkg(pkg, SIZE_PKG);
+		receive_pkg(rx_pkg, SIZE_PKG);
+	} while(!check_error(pkg,rx_pkg));
 
-	for(i=0; i < 8; i++)
-		USART_tx(pkg[i]);
-		
-	for(i=0; i < 8; i++)
-		rx_pkg[i] = USART_rx();
-
-	return (rx_pkg[5]);
+	return rx_pkg[5];
 }
+
+void send_pkg(uint8_t* tx_pkg, uint8_t size)
+{
+	uint8_t i;
+	
+	for(i=0; i < size; i++)
+		USART_tx(tx_pkg[i]);
+}
+
+void receive_pkg(uint8_t* rx_pkg, uint8_t size)
+{
+	uint8_t i;
+	
+	for(i=0; i < size; i++)
+		rx_pkg[i] = USART_rx();
+}
+
+uint8_t check_error(uint8_t* tx_pkg, uint8_t* rx_pkg)
+{
+	uint8_t f;
+	
+	if(tx_pkg[2]==rx_pkg[2]) // OK
+		f = 0;
+	else if(rx_pkg[2]==0xFF) // invalid CRC
+		f = 1;
+	else if(rx_pkg[2]==0xFE) // invalid Register
+		f = 2;
+	else
+		f = 3;	// Unknown behavior 
+		
+	return f;
+}
+
 uint16_t converte_hex_dec(uint8_t valor)
 {
 	uint16_t a,b;
