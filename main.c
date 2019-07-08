@@ -25,6 +25,7 @@ int main()
 	USART_Init(B9600);
 
 	three_wire_init();
+	pwm_init()
 
 	sei();
 	//write_minutes(0x04);
@@ -43,7 +44,7 @@ int main()
 		_delay_ms(250);
 	   
 		data = le_dado(0x01);
-		transmite_dado(data,0x07);
+		duty_cycle(data);
 		_delay_ms(3000);
 	}
 
