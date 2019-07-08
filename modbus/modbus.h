@@ -35,14 +35,6 @@ void transmite_dado(uint16_t dado, uint16_t sensor);
 uint16_t le_dado(uint16_t adress);
 
 /**
-  * @brief  Converte o valor hexa para decimal(valor hexa utilizado no DS1302).
-  * @param	Valor a ser convertido.
-  *
-  * @retval Valor da conversão.
-  */
-uint16_t converte_hex_dec(uint8_t valor);
-
-/**
   * @brief  Manda pacote de dados pela UART.
   * @param	Pacote de dados e tamanho do pacote.
   *

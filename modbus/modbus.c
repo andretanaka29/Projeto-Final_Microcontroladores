@@ -116,12 +116,3 @@ uint8_t check_error(uint8_t* tx_pkg, uint8_t* rx_pkg)
 		
 	return f;
 }
-
-uint16_t converte_hex_dec(uint8_t valor)
-{
-	uint16_t a,b;
-	a = (valor>>4)*10;
-	b = valor & 0x0F;
-
-	return a+b;
-}

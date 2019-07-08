@@ -98,3 +98,12 @@ void write_years(uint8_t data)
 {
 	write_data(registers_write[6], data);
 }
+
+uint16_t converte_hex_dec(uint8_t valor)
+{
+	uint16_t a,b;
+	a = (valor>>4)*10;
+	b = valor & 0x0F;
+
+	return a+b;
+}
