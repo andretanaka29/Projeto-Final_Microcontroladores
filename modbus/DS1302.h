@@ -47,39 +47,132 @@ typedef struct
 	} TRICKLE;
 } CHARGE_CONF;
 
-time_data *read_time(void);
-
-void write_time(time_data* data);
-
+/**
+  * @brief  Requesita os segundos ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Valor dos segundos.
+  */
 uint8_t get_seconds(void);
 
+/**
+  * @brief  Requesita valor dos minutos ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Valor dos minutos.
+  */
 uint8_t get_minutes(void);
 
+/**
+  * @brief  Requesita valor das horas no padrão 12h ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Valor das horas de 1-12.
+  */
 uint8_t get_12hours(void);
 
+/**
+  * @brief  Requesita valor das horas padrão 24h ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Valor das horas 0-23.
+  */
 uint8_t get_24hours(void);
 
+/**
+  * @brief  Requesita o dia ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Dia.
+  */
 uint8_t get_days(void);
 
+/**
+  * @brief  Requesita o mês ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Mês.
+  */
 uint8_t get_months(void);
 
+/**
+  * @brief  Requesita o dia da semana ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Dia da semana valor de 1-7.
+  */
 uint8_t get_week_day(void);
 
+/**
+  * @brief  Requesita o ano ao DS1302.
+  * @param	Nenhum.
+  *
+  * @retval Ano.
+  */
 uint8_t get_years(void);
 
+/**
+  * @brief  Escreve os segundos no DS1302.
+  * @param	Valor dos segundos.
+  *
+  * @retval Nenhum.
+  */
 void write_seconds(uint8_t data);
 
+/**
+  * @brief  Escreve os minutos no DS1302.
+  * @param	Valor dos minutos.
+  *
+  * @retval Nenhum.
+  */
 void write_minutes(uint8_t data);
 
+/**
+  * @brief  Escreve as horas no DS1302.
+  * @param	Valor das horas padrão 12h.
+  *
+  * @retval Nenhum.
+  */
 void write_12hours(uint8_t data);
 
+/**
+  * @brief  Escreve as horas no DS1302.
+  * @param	Valor das horas padrão 24h.
+  *
+  * @retval Nenhum.
+  */
 void write_24hours(uint8_t data);
 
+/**
+  * @brief  Escreve o dia no DS1302.
+  * @param	Dia.
+  *
+  * @retval Nenhum.
+  */
 void write_days(uint8_t data);
 
+/**
+  * @brief  Escreve o mês no DS1302.
+  * @param	Mês.
+  *
+  * @retval Nenhum.
+  */
 void write_months(uint8_t data);
 
+/**
+  * @brief  Escreve o dia da semana no DS1302.
+  * @param	Dia da semana, valor de 1-7.
+  *
+  * @retval Nenhum.
+  */
 void write_week_day(uint8_t data);
 
+/**
+  * @brief  Escreve o ano no DS1302.
+  * @param	Ano.
+  *
+  * @retval Nenhum.
+  */
 void write_years(uint8_t data);
+
 #endif /* DS1302_H_ */

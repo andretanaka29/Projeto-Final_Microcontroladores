@@ -10,8 +10,20 @@
 
 #define TOP 200
 
+/**
+  * @brief  Inicialização do hardware de PWM.
+  * @param	Nenhum.
+  *
+  * @retval Nenhum.
+  */
 void pwm_init();
 
+/**
+  * @brief  Ajusta duty-cycle do PWM.
+  * @param	Valor do duty-cycle em %.
+  *
+  * @retval Nenhum.
+  */
 void duty_cycle(uint8_t ciclo);
 
 #endif /* PWM_H_ */

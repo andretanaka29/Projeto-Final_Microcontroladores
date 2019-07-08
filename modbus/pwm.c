@@ -37,7 +37,7 @@ void duty_cycle(uint8_t ciclo)
 {
 	if (ciclo <= 100)
 	{
-		TIMER_2->OCRB = (TOP*ciclo)/100;
+		TIMER_2->OCRB = ciclo*2;
 	}
 	else
 	{

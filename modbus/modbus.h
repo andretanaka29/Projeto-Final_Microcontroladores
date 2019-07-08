@@ -19,8 +19,8 @@
 uint16_t CRC16_2(uint8_t *buf, int len);
 
 /**
-  * @brief  Transmite dado pela UART.
-  * @param	dado a ser transmitido e esdereço.
+  * @brief  Transmite dado.
+  * @param	dado a ser transmitido e endereço do sensor.
   *
   * @retval pacote de resposta.
   */
@@ -34,12 +34,36 @@ void transmite_dado(uint16_t dado, uint16_t sensor);
   */
 uint16_t le_dado(uint16_t adress);
 
+/**
+  * @brief  Converte o valor hexa para decimal(valor hexa utilizado no DS1302).
+  * @param	Valor a ser convertido.
+  *
+  * @retval Valor da conversão.
+  */
 uint16_t converte_hex_dec(uint8_t valor);
 
+/**
+  * @brief  Manda pacote de dados pela UART.
+  * @param	Pacote de dados e tamanho do pacote.
+  *
+  * @retval Nenhum.
+  */
 void send_pkg(uint8_t* tx_pkg, uint8_t size);
 
+/**
+  * @brief  Recepção de pacote de dados pela UART.
+  * @param	Pacote de dados e tamanho do pacote.
+  *
+  * @retval Nenhum.
+  */
 void receive_pkg(uint8_t* rx_pkg, uint8_t size);
 
+/**
+  * @brief  Checa por mensagens de erro no pacote.
+  * @param	Pacote de dados transmitido e Pacote de dados recebido.
+  *
+  * @retval Flag de erro.
+  */
 uint8_t check_error(uint8_t* tx_pkg, uint8_t* rx_pkg);
 
 #endif /* MODBUS_H_ */
