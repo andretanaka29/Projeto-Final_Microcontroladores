@@ -24,5 +24,4 @@ O motor é controlador por um PWM variável de 0 a 100% gerado pelo ATMega328p.
 Como um simples PWM não é o suficiente para o acionamento do motor utilizou-se um driver de corrente com um transistor BD139 e um resistor de 1k na base, que recebe o PWM.
 
 ## Observações
-- Recepção da UART está com problemas.
--- Recebe dados, porém, os dados são lidos mais rápido do que a recepção.
+- Recepção da UART está com problemas. Recebe dados, porém, os dados são lidos mais rápido do que a recepção.
